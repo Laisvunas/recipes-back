@@ -27,7 +27,7 @@ router.get("/:id", async (req, res) => {
             queryStr = `SELECT recipes.id, recipes.image, recipes.title, recipes.description, recipes.owner_id, COUNT(comments.id) AS comments_num FROM recipes LEFT JOIN comments ON recipes.id = comments.recipe_id WHERE recipes.id = ${mysql.escape(req.params.id)} GROUP BY recipes.id LIMIT 1`;
         }
         const [recipe] = await con.execute(queryStr);
-        const [comments] = await con.execute(`SELECT * FROM comments WHERE recipe_id = ${mysql.escape(req.params.id)}`);
+        const [comments] = await con.execute(`SELECT comments.recipe_id, comments.user_id, comments.comment, comments.timestamp, users.email FROM comments INNER JOIN users ON comments.user_id = users.id WHERE recipe_id = ${mysql.escape(req.params.id)} ORDER BY timestamp DESC`);
         con.end();
         res.send({ data: {recipe, comments} });
     }
